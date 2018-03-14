@@ -46,11 +46,10 @@ func NewJWKClient(options JWKClientOptions, extractor RequestTokenExtractor) *JW
 
 // GetKey returns the key associated with the provided ID.
 func (j *JWKClient) GetKey(ID string) (jose.JSONWebKey, error) {
-	j.mu.Lock()
-	defer j.mu.Unlock()
 
 	searchedKey, exist := j.keys[ID]
 	if !exist {
+		j.mu.Lock()
 		if keys, err := j.downloadKeys(); err != nil {
 			return jose.JSONWebKey{}, err
 		} else {
@@ -65,6 +64,7 @@ func (j *JWKClient) GetKey(ID string) (jose.JSONWebKey, error) {
 				}
 			}
 		}
+		j.mu.Unlock()
 	}
 
 	if exist {
