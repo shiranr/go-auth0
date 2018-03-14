@@ -50,6 +50,7 @@ func (j *JWKClient) GetKey(ID string) (jose.JSONWebKey, error) {
 	searchedKey, exist := j.keys[ID]
 	if !exist {
 		j.mu.Lock()
+		defer j.mu.Unlock()
 		if keys, err := j.downloadKeys(); err != nil {
 			return jose.JSONWebKey{}, err
 		} else {
@@ -64,7 +65,6 @@ func (j *JWKClient) GetKey(ID string) (jose.JSONWebKey, error) {
 				}
 			}
 		}
-		j.mu.Unlock()
 	}
 
 	if exist {
